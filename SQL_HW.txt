@@ -1,0 +1,209 @@
+https://sql-ex.ru/learn_exercises.php#answer_ref
+
+
+Задание: 1 (Serge I: 2002-09-30)
+Найдите номер модели, скорость и размер жесткого диска для всех ПК стоимостью менее 500 дол. Вывести: model, speed и hd
+
+SELECT model, speed, hd 
+FROM PC 
+WHERE Price <500;
+
+==========================================
+
+Задание: 2 (Serge I: 2002-09-21)
+Найдите производителей принтеров. Вывести: maker
+
+SELECT DISTINCT maker
+FROM Product
+WHERE type = 'Printer'
+
+==========================================
+
+Задание: 3 (Serge I: 2002-09-30)
+Найдите номер модели, объем памяти и размеры экранов ПК-блокнотов, цена которых превышает 1000 дол.
+
+SELECT model, ram, screen
+FROM Laptop
+WHERE price > 1000
+
+=========================================
+
+Задание: 4 (Serge I: 2002-09-21)
+Найдите все записи таблицы Printer для цветных принтеров.
+
+SELECT *
+FROM Printer
+WHERE color = 'y'
+
+=========================================
+
+Задание: 5 (Serge I: 2002-09-30)
+Найдите номер модели, скорость и размер жесткого диска ПК, имеющих 12x или 24x CD и цену менее 600 дол.
+
+SELECT model, speed, hd
+FROM PC
+WHERE (Cd ='12x' OR Cd ='24x') AND Price <600
+
+=========================================
+
+Задание: 6 (Serge I: 2002-10-28)
+Для каждого производителя, выпускающего ПК-блокноты c объёмом жесткого диска не менее 10 Гбайт, найти скорости таких ПК-блокнотов. Вывод: производитель, скорость.
+
+SELECT DISTINCT Maker, speed
+FROM Product
+INNER JOIN Laptop
+ON Product.model=Laptop.model
+WHERE hd>=10
+
+========================================
+
+Задание: 7 (Serge I: 2002-11-02)
+Найдите номера моделей и цены всех имеющихся в продаже продуктов (любого типа) производителя B (латинская буква).
+
+
+Мое решение: (способ решения не прошел проверку)
+SELECT DISTINCT COALESCE (Product.model, PC.model, Laptop.model, Printer.model), COALESCE (PC.price, Laptop.price, Printer.price)
+FROM Product
+LEFT JOIN PC
+ON Product.model=PC.model
+LEFT JOIN Laptop
+ON Product.model=Laptop.model
+LEFT JOIN Printer
+ON Product.model=Printer.model
+WHERE maker='B'
+
+Ход решения 
+* SELECT model, price
+* FROM Product 
+* INNER JOIN PC
+* ON Product.model=PC.model
+* INNER JOIN Laptop
+* ON Product.model=Laptop.model
+* INNER JOIN Printer
+* ON Product.model=Printer.model
+* WHERE maker='B'
+
+* SELECT DISTINCT Product.model AS model_1, PC.model AS model_2, price
+* FROM Product
+* LEFT JOIN PC
+* ON Product.model=PC.model
+* WHERE maker='B'
+
+
+* SELECT DISTINCT Product.model AS model_1, PC.model AS model_2, Laptop.model AS model_3, 
+* Printer.model AS model_4, price
+* FROM Product
+* LEFT JOIN PC
+* ON Product.model=PC.model
+* LEFT JOIN Laptop
+* ON Product.model=Laptop.model
+* LEFT JOIN Printer
+* ON Product.model=Printer.model
+* WHERE maker='B'
+
+ПРАВИЛЬНОЕ РЕШЕНИЕ, ЗАСЧИТАННОЕ ПРОГРАММОЙ
+SELECT model, price 
+FROM PC 
+WHERE model IN (SELECT model 
+ FROM Product 
+ WHERE maker = 'B')
+UNION
+SELECT model, price 
+FROM Laptop 
+WHERE model IN (SELECT model 
+ FROM Product 
+ WHERE maker = 'B')
+UNION
+SELECT model, price 
+FROM Printer 
+WHERE model IN (SELECT model 
+ FROM Product 
+ WHERE maker = 'B')
+
+
+
+ДРУГИЕ ВАРИАНТЫ РЕШЕНИЯ, ПРЕДЛАГАЕМЫЕ ПРОГРАММОЙ
+
+1 var:
+SELECT model, price 
+FROM PC 
+WHERE model IN (SELECT model 
+ FROM Product 
+ WHERE maker = 'B' AND 
+ type = 'PC')
+UNION
+SELECT model, price 
+FROM Laptop 
+WHERE model IN (SELECT model 
+ FROM Product 
+ WHERE maker = 'B' AND 
+ type = 'Laptop')
+UNION
+SELECT model, price 
+FROM Printer 
+WHERE model IN (SELECT model 
+ FROM Product 
+ WHERE maker = 'B' AND 
+ type = 'Printer');
+
+2var:
+SELECT * FROM (SELECT model, price 
+ FROM PC
+ UNION
+ SELECT model, price 
+ FROM Laptop
+ UNION
+ SELECT model, price 
+ FROM Printer) AS a
+WHERE a.model IN (SELECT model 
+ FROM Product 
+ WHERE maker = 'B');
+
+3 var:
+SELECT a.model, price 
+FROM (SELECT model, price 
+ FROM PC 
+ UNION
+ SELECT model, price 
+  FROM Laptop
+ UNION
+ SELECT model, price 
+ FROM Printer
+ ) AS a JOIN 
+ Product p ON a.model = p.model
+WHERE p.maker = 'B';
+
+=========================================
+
+Задание: 8 (Serge I: 2003-02-03)
+Найдите производителя, выпускающего ПК, но не ПК-блокноты.
+
+SELECT DISTINCT maker
+FROM Product
+WHERE type = 'PC' AND
+maker NOT IN (SELECT maker FROM Product WHERE  type ='Laptop');
+
+=========================================
+
+Задание: 9 (Serge I: 2002-11-02)
+Найдите производителей ПК с процессором не менее 450 Мгц. Вывести: Maker
+
+SELECT DISTINCT maker
+FROM Product 
+LEFT JOIN PC
+ON Product.model=PC.model
+WHERE speed>=450
+
+
+=========================================
+
+Задание: 10 (Serge I: 2002-09-23)
+Найдите модели принтеров, имеющих самую высокую цену. Вывести: model, price
+
+SELECT model, price
+FROM Printer
+WHERE price IN (SELECT MAX(price) FROM Printer)
+
+
+
+
